@@ -6,6 +6,7 @@ import inspect
 import numpy as np
 import json
 import websockets
+import ssl
 from datetime import datetime
 from collections import defaultdict
 import base64
@@ -95,10 +96,18 @@ class RealtimeAPI(RealtimeEventHandler):
     async def connect(self, model='gpt-4o-realtime-preview-2024-12-17'):
         if self.is_connected():
             raise Exception("Already connected")
+        
+        # Create SSL context - disable verification only in local development
+        ssl_context = ssl.create_default_context()
+        if os.getenv("LOCAL_DEV", "False").lower() == "true":
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            self.log("SSL certificate verification disabled for local development")
+        
         self.ws = await websockets.connect(f"{self.url}?model={model}", additional_headers={
             'Authorization': f'Bearer {self.api_key}',
             'OpenAI-Beta': 'realtime=v1'
-        })
+        }, ssl=ssl_context)
         self.log(f"Connected to {self.url}")
         asyncio.create_task(self._receive_messages())
 

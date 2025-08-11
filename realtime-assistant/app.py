@@ -68,7 +68,7 @@ async def setup_openai_realtime():
 @cl.on_chat_start
 async def start():
     await cl.Message(
-        content="Welcome to the Chainlit x OpenAI realtime example. Press `P` to talk!"
+        content="Welcome to the Chainlit x OpenAI realtime example by RenovaVision. \n Just talk to out demo agent to enjoy the experience of the latest speach-to-speech technology! \n You can switch in realtime between languages including Lithuanian, Latvian and Estonian!"
     ).send()
     await setup_openai_realtime()
 
