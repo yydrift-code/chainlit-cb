@@ -10,7 +10,6 @@ SERVER_USER="root"  # Change this to your server username
 SERVER_IP="104.248.37.226"  # Your server IP
 SERVER_PATH="/tmp"
 WEB_ROOT="/var/www/html"
-CADDY_CONFIG="/etc/caddy"
 
 # Colors for output
 RED='\033[0;31m'
@@ -61,20 +60,63 @@ ssh "${SERVER_USER}@${SERVER_IP}" << 'EOF'
     sudo chmod -R 755 /var/www/html
     sudo chmod 644 /var/www/html/*.html
     
-    echo "Updating Caddy configuration..."
-    sudo cp /tmp/Caddyfile /etc/caddy/
+    echo "Detecting Caddy configuration location..."
+    
+    # Check common Caddy configuration locations
+    if [ -d "/etc/caddy" ]; then
+        CADDY_CONFIG_DIR="/etc/caddy"
+        echo "Found Caddy config at: /etc/caddy"
+    elif [ -d "/etc/caddy-server" ]; then
+        CADDY_CONFIG_DIR="/etc/caddy-server"
+        echo "Found Caddy config at: /etc/caddy-server"
+    elif [ -f "/etc/caddy/Caddyfile" ]; then
+        CADDY_CONFIG_DIR="/etc/caddy"
+        echo "Found Caddy config at: /etc/caddy"
+    elif [ -f "/etc/caddy-server/Caddyfile" ]; then
+        CADDY_CONFIG_DIR="/etc/caddy-server"
+        echo "Found Caddy config at: /etc/caddy-server"
+    else
+        echo "Caddy config directory not found in common locations"
+        echo "Creating /etc/caddy directory..."
+        sudo mkdir -p /etc/caddy
+        CADDY_CONFIG_DIR="/etc/caddy"
+    fi
+    
+    echo "Updating Caddy configuration at: $CADDY_CONFIG_DIR"
+    sudo cp /tmp/Caddyfile "$CADDY_CONFIG_DIR/"
     
     echo "Validating Caddy configuration..."
-    sudo caddy validate --config /etc/caddy/Caddyfile
+    sudo caddy validate --config "$CADDY_CONFIG_DIR/Caddyfile"
     
     echo "Reloading Caddy..."
-    sudo systemctl reload caddy
+    # Try different reload methods
+    if command -v systemctl >/dev/null 2>&1 && systemctl is-active --quiet caddy; then
+        echo "Using systemctl to reload Caddy..."
+        sudo systemctl reload caddy
+    elif command -v systemctl >/dev/null 2>&1 && systemctl is-active --quiet caddy-server; then
+        echo "Using systemctl to reload caddy-server..."
+        sudo systemctl reload caddy-server
+    else
+        echo "Using caddy reload command..."
+        sudo caddy reload --config "$CADDY_CONFIG_DIR/Caddyfile"
+    fi
     
     echo "Checking Caddy status..."
-    sudo systemctl status caddy --no-pager
+    if command -v systemctl >/dev/null 2>&1; then
+        if systemctl is-active --quiet caddy; then
+            sudo systemctl status caddy --no-pager
+        elif systemctl is-active --quiet caddy-server; then
+            sudo systemctl status caddy-server --no-pager
+        else
+            echo "Caddy service not found via systemctl"
+        fi
+    fi
     
     echo "Listing web directory contents..."
     ls -la /var/www/html/
+    
+    echo "Listing Caddy config directory contents..."
+    ls -la "$CADDY_CONFIG_DIR/"
 EOF
 
 echo -e "${GREEN}✅ Deployment completed successfully!${NC}"
