@@ -27,13 +27,13 @@ Instead of running the full Chainlit application, this setup serves a simple HTM
 ### Option 2: Manual Docker Commands
 ```bash
 # Build and start the container
-docker-compose -f docker-compose.html.yml up --build -d
+docker compose -f docker-compose.html.yml up --build -d
 
 # Check status
-docker-compose -f docker-compose.html.yml ps
+docker compose -f docker-compose.html.yml ps
 
 # View logs
-docker-compose -f docker-compose.html.yml logs -f
+docker compose -f docker-compose.html.yml logs -f
 ```
 
 ## What to Expect
@@ -56,7 +56,7 @@ Once the HTML stub is running:
 ### Container Won't Start
 - Check if port 8888 is already in use
 - Ensure Docker is running
-- Check Docker logs: `docker-compose -f docker-compose.html.yml logs`
+- Check Docker logs: `docker compose -f docker-compose.html.yml logs`
 
 ### Health Check Fails
 - Verify the container is running: `docker ps`
@@ -73,10 +73,10 @@ When you're ready to test the actual application:
 
 ```bash
 # Stop the HTML stub
-docker-compose -f docker-compose.html.yml down
+docker compose -f docker-compose.html.yml down
 
 # Start the original Chainlit app
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 ## Benefits of This Approach

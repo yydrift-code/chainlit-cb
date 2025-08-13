@@ -4,18 +4,18 @@ echo "🚀 Starting HTML stub container for Caddy testing..."
 
 # Stop any existing containers
 echo "Stopping existing containers..."
-docker-compose -f docker-compose.html.yml down
+docker compose -f docker-compose.html.yml down
 
 # Build and start the HTML stub container
 echo "Building and starting HTML stub container..."
-docker-compose -f docker-compose.html.yml up --build -d
+docker compose -f docker-compose.html.yml up --build -d
 
 # Wait a moment for the container to start
 sleep 5
 
 # Check if the container is running
 echo "Checking container status..."
-docker-compose -f docker-compose.html.yml ps
+docker compose -f docker-compose.html.yml ps
 
 # Test the health endpoint
 echo "Testing health endpoint..."
