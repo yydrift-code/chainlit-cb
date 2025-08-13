@@ -3,7 +3,7 @@
 
 realtime-demo.renovavision.tech {
 	# Reverse proxy to your Docker container
-	reverse_proxy localhost:8888 {
+	reverse_proxy host.docker.internal:8888 {
 		# Health checks to ensure the backend is available
 		health_uri /health
 		health_interval 30s
