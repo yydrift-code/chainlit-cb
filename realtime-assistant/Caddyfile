@@ -3,7 +3,7 @@
 
 realtime-demo.renovavision.tech {
 	# Reverse proxy to your Docker container
-	reverse_proxy host.docker.internal:8888 {
+	reverse_proxy 0.0.0.0:8888 {
 		# Health checks to ensure the backend is available
 		health_uri /health
 		health_interval 30s
@@ -14,12 +14,6 @@ realtime-demo.renovavision.tech {
 		# Load balancing (single backend in this case)
 		lb_policy round_robin
 		
-		# Connection settings
-		transport http {
-			dial_timeout 5s
-			response_header_timeout 30s
-			keepalive 30s
-		}
 		
 		# Headers to preserve client information
 		header_up Host {host}
@@ -41,18 +35,7 @@ realtime-demo.renovavision.tech {
 		level INFO
 	}
 	
-	# Security headers
-	header {
-		# Security headers
-		X-Content-Type-Options nosniff
-		X-Frame-Options DENY
-		X-XSS-Protection "1; mode=block"
-		Referrer-Policy strict-origin-when-cross-origin
-		
-		# Remove server information
-		-Server
-		Server "RenovaVision"
-	}
+
 }
 
 # Optional: Redirect www subdomain to main domain
