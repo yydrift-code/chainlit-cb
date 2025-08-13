@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caddy Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .status {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background-color: #e2e3e5;
+            color: #383d41;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #d6d8db;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Caddy Test Page</h1>
+        
+        <div class="status">
+            <strong>✅ SUCCESS!</strong> If you can see this page, Caddy is working correctly!
+        </div>
+        
+        <div class="info">
+            <p><strong>Domain:</strong> <span id="domain"></span></p>
+            <p><strong>Port:</strong> <span id="port"></span></p>
+            <p><strong>Protocol:</strong> <span id="protocol"></span></p>
+        </div>
+        
+        <div class="info">
+            <p>This is a simple HTML stub page served from a Docker container to test Caddy reverse proxy functionality.</p>
+            <p>The page is being served on port 8888 and proxied through Caddy.</p>
+        </div>
+        
+        <div class="timestamp">
+            <p>Page loaded at: <span id="timestamp"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Display current page information
+        document.getElementById('domain').textContent = window.location.hostname;
+        document.getElementById('port').textContent = window.location.port || '80/443';
+        document.getElementById('protocol').textContent = window.location.protocol;
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Caddy test page loaded successfully!');
+        });
+    </script>
+</body>
+</html>
