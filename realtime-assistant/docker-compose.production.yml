@@ -16,7 +16,7 @@ services:
     # Don't expose port 8888 to host in production
     # Caddy will handle external access
     expose:
-      - "8888"
+      - 8888/tcp
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
       interval: 30s
@@ -30,8 +30,13 @@ services:
     container_name: caddy-proxy
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80/tcp
+      - 443:443/tcp
+    expose:
+      - 2019/tcp
+      - 443/tcp
+      - 443/udp
+      - 80/tcp
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
