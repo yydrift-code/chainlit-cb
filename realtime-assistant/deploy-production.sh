@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Production deployment script for realtime assistant
-# This script deploys the app without Caddy, using direct port exposure
+# Production deployment script for realtime assistant with Traefik
+# This script deploys the app with Traefik reverse proxy and automatic SSL
 
 set -e
 
-echo "🚀 Starting production deployment..."
+echo "🚀 Starting production deployment with Traefik..."
 
 # Check if .env file exists
 if [ ! -f .env ]; then
@@ -20,31 +20,52 @@ if ! grep -q "OPENAI_API_KEY=" .env; then
     exit 1
 fi
 
-# Set production public URL if not provided
-if [ -z "$CHAINLIT_PUBLIC_URL" ]; then
-    echo "📝 CHAINLIT_PUBLIC_URL not set, using default localhost"
-    export CHAINLIT_PUBLIC_URL="http://localhost:8888"
+# Set production public URL
+export CHAINLIT_PUBLIC_URL="https://realtime-demo.renovavision.tech"
+
+# Create necessary directories
+echo "📁 Creating necessary directories..."
+mkdir -p letsencrypt
+mkdir -p traefik/dynamic
+
+# Set proper permissions for Let's Encrypt
+echo "🔐 Setting permissions for Let's Encrypt..."
+sudo chown -R $USER:$USER letsencrypt
+chmod 600 letsencrypt
+
+# Setup Traefik network if not exists
+echo "🌐 Setting up Traefik network..."
+if ! docker network ls | grep -q "proxy"; then
+    docker network create proxy
+    echo "✅ Traefik proxy network created"
+else
+    echo "✅ Traefik proxy network already exists"
 fi
 
 # Stop existing containers
 echo "🛑 Stopping existing containers..."
 docker compose down 2>/dev/null || true
+docker compose -f docker-compose.production.yml down 2>/dev/null || true
 
 # Build and start production stack
-echo "🔨 Building and starting production stack..."
-docker compose up --build -d
+echo "🔨 Building and starting production stack with Traefik..."
+docker compose -f docker-compose.production.yml up --build -d
 
 # Wait for services to be ready
 echo "⏳ Waiting for services to be ready..."
-sleep 10
+sleep 15
 
 # Check service status
 echo "📊 Checking service status..."
-docker compose ps
+docker compose -f docker-compose.production.yml ps
+
+# Check Traefik logs
+echo "📋 Traefik logs (last 10 lines):"
+docker compose -f docker-compose.production.yml logs --tail=10 traefik
 
 # Check realtime assistant logs
 echo "📋 Realtime Assistant logs (last 10 lines):"
-docker compose logs --tail=10 realtime-assistant
+docker compose -f docker-compose.production.yml logs --tail=10 realtime-assistant
 
 echo ""
 echo "✅ Deployment complete!"
@@ -52,15 +73,22 @@ echo ""
 echo "🌐 Your app is now accessible at:"
 echo "   $CHAINLIT_PUBLIC_URL"
 echo ""
+echo "📊 Traefik dashboard (optional):"
+echo "   https://traefik.renovavision.tech"
+echo ""
 echo "📝 Useful commands:"
-echo "   View logs: docker compose logs -f"
-echo "   Stop: docker compose down"
-echo "   Restart: docker compose restart"
+echo "   View logs: docker compose -f docker-compose.production.yml logs -f"
+echo "   Stop: docker compose -f docker-compose.production.yml down"
+echo "   Restart: docker compose -f docker-compose.production.yml restart"
 echo "   Update: ./deploy-production.sh"
 echo ""
-echo "⚠️  Note: This deployment runs without a reverse proxy."
-echo "   For production use with SSL, consider using:"
-echo "   - Nginx with Let's Encrypt"
-echo "   - Traefik"
-echo "   - Cloudflare Tunnel"
-echo "   - Or run behind a load balancer"
+echo "🔒 Traefik will automatically:"
+echo "   - Obtain SSL certificates from Let's Encrypt"
+echo "   - Handle HTTPS termination"
+echo "   - Proxy requests to your app"
+echo "   - Provide health checks and load balancing"
+echo ""
+echo "⚠️  Important notes:"
+echo "   - Make sure your domain renovavision.tech points to this server"
+echo "   - DNS records for realtime-demo.renovavision.tech must be configured"
+echo "   - Ports 80 and 443 must be open on your firewall"

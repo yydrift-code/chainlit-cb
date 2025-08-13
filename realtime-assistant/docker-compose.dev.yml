@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  # Development version of realtime assistant
+  realtime-assistant-dev:
+    build: .
+    container_name: realtime-assistant-dev
+    restart: unless-stopped
+    environment:
+      - CHAINLIT_HOST=0.0.0.0
+      - CHAINLIT_PORT=8888
+      - CHAINLIT_PUBLIC_URL=http://localhost:8888
+    env_file:
+      - .env
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=false"  # Disable Traefik for dev environment
