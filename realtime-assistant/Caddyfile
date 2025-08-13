@@ -1,17 +1,38 @@
-# Caddyfile for testing DNS records and routing
-# This configuration serves HTML stub pages for both domains
+# Caddyfile for realtime-demo.renovavision.tech
+# This configuration proxies requests to your Docker container running on port 8888
 
 realtime-demo.renovavision.tech {
-	# Serve the HTML stub page for testing
-	root * /var/www/html
-	file_server
-	
-	# Serve the specific HTML file
-	@html {
-		path *
-		file
+	# Reverse proxy to your Docker container
+	reverse_proxy localhost:8888 {
+		# Health checks to ensure the backend is available
+		health_uri /health
+		health_interval 30s
+		health_timeout 10s
+		health_passes 2
+		health_fails 3
+		
+		# Load balancing (single backend in this case)
+		lb_policy round_robin
+		
+		# Connection settings
+		transport http {
+			dial_timeout 5s
+			response_header_timeout 30s
+			keepalive 30s
+		}
+		
+		# Headers to preserve client information
+		header_up Host {host}
+		header_up X-Real-IP {remote}
+		
+		# WebSocket support for realtime features
+		header_up Connection {>Connection}
+		header_up Upgrade {>Upgrade}
+		header_up Sec-WebSocket-Key {>Sec-WebSocket-Key}
+		header_up Sec-WebSocket-Version {>Sec-WebSocket-Version}
+		header_up Sec-WebSocket-Extensions {>Sec-WebSocket-Extensions}
+		header_up Sec-WebSocket-Protocol {>Sec-WebSocket-Protocol}
 	}
-	respond @html /realtime-demo.html
 	
 	# Logging configuration
 	log {
@@ -34,44 +55,7 @@ realtime-demo.renovavision.tech {
 	}
 }
 
-voice-test.renovavision.tech {
-	# Serve the HTML stub page for testing
-	root * /var/www/html
-	file_server
-	
-	# Serve the specific HTML file
-	@html {
-		path *
-		file
-	}
-	respond @html /voice-test.html
-	
-	# Logging configuration
-	log {
-		output file /var/log/caddy/voice-test.log
-		format json
-		level INFO
-	}
-	
-	# Security headers
-	header {
-		# Security headers
-		X-Content-Type-Options nosniff
-		X-Frame-Options DENY
-		X-XSS-Protection "1; mode=block"
-		Referrer-Policy strict-origin-when-cross-origin
-		
-		# Remove server information
-		-Server
-		Server "RenovaVision"
-	}
-}
-
-# Optional: Redirect www subdomains to main domains
+# Optional: Redirect www subdomain to main domain
 www.realtime-demo.renovavision.tech {
 	redir https://realtime-demo.renovavision.tech{uri} permanent
-}
-
-www.voice-test.renovavision.tech {
-	redir https://voice-test.renovavision.tech{uri} permanent
 }
