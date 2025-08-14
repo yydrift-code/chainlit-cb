@@ -21,7 +21,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./letsencrypt:/letsencrypt
-      - ./traefik:/etc/traefik
+      - ./traefik/dynamic:/etc/traefik/dynamic
     
     command:
       # EntryPoints

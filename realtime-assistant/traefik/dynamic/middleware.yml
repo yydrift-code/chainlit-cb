@@ -1,0 +1,42 @@
+# Traefik dynamic configuration (Option A approach)
+# This file contains dynamic configuration that can be updated without restarting Traefik
+# We're using command-line arguments in docker-compose.production.yml instead of static traefik.yml
+# This approach eliminates configuration conflicts and redundancy
+
+# Common middleware configurations
+http:
+  middlewares:
+    # Security headers middleware
+    security-headers:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+    
+    # Rate limiting middleware (optional)
+    rate-limit:
+      rateLimit:
+        burst: 100
+        average: 50
+    
+    # CORS middleware (if needed)
+    cors:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        accessControlAllowHeaders:
+          - Content-Type
+          - Authorization
+        accessControlAllowOriginList:
+          - "*"
+        accessControlMaxAge: 100
+        addVaryHeader: true
