@@ -9,7 +9,8 @@ RUN apk add --no-cache \
     gcc \
     g++ \
     musl-dev \
-    libffi-dev
+    libffi-dev \
+    curl
 
 # Copy requirements first for better caching
 COPY requirements.txt .
