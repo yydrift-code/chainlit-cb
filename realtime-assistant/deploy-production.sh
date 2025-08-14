@@ -1,66 +1,77 @@
 #!/bin/bash
 
-# Production deployment script for realtime assistant
-# This script deploys the app without Caddy, using direct port exposure
-
+# Production deployment script for Traefik + Realtime Assistant
 set -e
 
 echo "🚀 Starting production deployment..."
 
-# Check if .env file exists
-if [ ! -f .env ]; then
-    echo "❌ Error: .env file not found!"
-    echo "Please create .env file with your OPENAI_API_KEY"
+# Check if required files exist
+if [[ ! -f ".env.prod" ]]; then
+    echo "❌ Error: .env.prod file not found!"
+    echo "Please copy .env.prod.template to .env.prod and fill in your values."
     exit 1
 fi
 
-# Check if OPENAI_API_KEY is set
-if ! grep -q "OPENAI_API_KEY=" .env; then
-    echo "❌ Error: OPENAI_API_KEY not found in .env file!"
+if [[ ! -f "docker-compose.prod.yml" ]]; then
+    echo "❌ Error: docker-compose.prod.yml file not found!"
     exit 1
 fi
 
-# Set production public URL if not provided
-if [ -z "$CHAINLIT_PUBLIC_URL" ]; then
-    echo "📝 CHAINLIT_PUBLIC_URL not set, using default localhost"
-    export CHAINLIT_PUBLIC_URL="http://localhost:8888"
-fi
+# Create necessary directories
+echo "📁 Creating necessary directories..."
+mkdir -p certs
+mkdir -p traefik
 
-# Stop existing containers
-echo "🛑 Stopping existing containers..."
-docker compose down 2>/dev/null || true
+# Set proper permissions for ACME certificates
+echo "🔒 Setting permissions for certificates..."
+touch certs/acme.json
+chmod 600 certs/acme.json
 
-# Build and start production stack
-echo "🔨 Building and starting production stack..."
-docker compose up --build -d
+# Create Docker network if it doesn't exist
+echo "🌐 Creating Docker network..."
+docker network create traefik 2>/dev/null || echo "Network 'traefik' already exists"
 
-# Wait for services to be ready
-echo "⏳ Waiting for services to be ready..."
+# Stop existing services if they exist
+echo "🛑 Stopping existing services..."
+docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
+
+# Pull latest images
+echo "📥 Pulling latest images..."
+docker-compose -f docker-compose.prod.yml pull
+
+# Build the application
+echo "🔨 Building application..."
+docker-compose -f docker-compose.prod.yml build --no-cache
+
+# Start services
+echo "▶️ Starting services..."
+docker-compose -f docker-compose.prod.yml up -d
+
+# Wait a moment for services to start
+echo "⏳ Waiting for services to start..."
 sleep 10
 
 # Check service status
 echo "📊 Checking service status..."
-docker compose ps
+docker-compose -f docker-compose.prod.yml ps
 
-# Check realtime assistant logs
-echo "📋 Realtime Assistant logs (last 10 lines):"
-docker compose logs --tail=10 realtime-assistant
+# Show logs for troubleshooting
+echo "📝 Recent logs:"
+docker-compose -f docker-compose.prod.yml logs --tail=20
 
 echo ""
 echo "✅ Deployment complete!"
 echo ""
-echo "🌐 Your app is now accessible at:"
-echo "   $CHAINLIT_PUBLIC_URL"
+echo "🌍 Your services should be available at:"
+echo "   - Realtime Assistant: https://realtime-demo.renovavision.tech"
+echo "   - Traefik Dashboard: https://traefik.renovavision.tech"
 echo ""
-echo "📝 Useful commands:"
-echo "   View logs: docker compose logs -f"
-echo "   Stop: docker compose down"
-echo "   Restart: docker compose restart"
-echo "   Update: ./deploy-production.sh"
+echo "📋 Useful commands:"
+echo "   - View logs: docker-compose -f docker-compose.prod.yml logs -f"
+echo "   - Stop services: docker-compose -f docker-compose.prod.yml down"
+echo "   - Restart services: docker-compose -f docker-compose.prod.yml restart"
 echo ""
-echo "⚠️  Note: This deployment runs without a reverse proxy."
-echo "   For production use with SSL, consider using:"
-echo "   - Nginx with Let's Encrypt"
-echo "   - Traefik"
-echo "   - Cloudflare Tunnel"
-echo "   - Or run behind a load balancer"
+echo "⚠️  Note: Make sure your DNS records point to this server:"
+echo "   - realtime-demo.renovavision.tech → $(curl -s ifconfig.me)"
+echo "   - traefik.renovavision.tech → $(curl -s ifconfig.me)"
+echo "   - *.renovavision.tech → $(curl -s ifconfig.me) (wildcard for future subdomains)"

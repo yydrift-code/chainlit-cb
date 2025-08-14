@@ -1,0 +1,63 @@
+api:
+  dashboard: true
+  insecure: true  # Set to false for production
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entrypoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: traefik
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: your-email@renovavision.tech  # Change this to your email
+      storage: /certs/acme.json
+      httpChallenge:
+        entryPoint: web
+
+# Global redirect to https
+http:
+  middlewares:
+    default-headers:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        
+    secure-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS  
+          - PUT
+          - POST
+          - DELETE
+          - PATCH
+        accessControlMaxAge: 100
+        addVaryHeader: true
+        referrerPolicy: "same-origin"
+        
+log:
+  level: INFO
+
+accessLog: {}

@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard (optional, can be removed in production)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik:ro
+      - ./certs:/certs
+    environment:
+      - TRAEFIK_API_DASHBOARD=true
+      - TRAEFIK_API_INSECURE=true  # Set to false for production
+      - TRAEFIK_PROVIDERS_DOCKER=true
+      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
+      - TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:443
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ACME_EMAIL}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/certs/acme.json
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.renovavision.tech`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.redirect-https.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.redirect-https.entrypoints=web"
+      - "traefik.http.routers.redirect-https.middlewares=redirect-to-https"
+    networks:
+      - traefik
+
+  realtime-assistant:
+    build: .
+    container_name: realtime-assistant
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      - CHAINLIT_HOST=0.0.0.0
+      - CHAINLIT_PORT=8888
+      - CHAINLIT_PUBLIC_URL=https://realtime-demo.renovavision.tech
+    volumes: []
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.realtime-assistant.rule=Host(`realtime-demo.renovavision.tech`)"
+      - "traefik.http.routers.realtime-assistant.entrypoints=websecure"
+      - "traefik.http.routers.realtime-assistant.tls.certresolver=letsencrypt"
+      - "traefik.http.services.realtime-assistant.loadbalancer.server.port=8888"
+      - "traefik.http.routers.realtime-assistant.middlewares=secure-headers"
+      - "traefik.http.middlewares.secure-headers.headers.accesscontrolallowmethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
+      - "traefik.http.middlewares.secure-headers.headers.accesscontrolalloworiginlist=https://realtime-demo.renovavision.tech"
+      - "traefik.http.middlewares.secure-headers.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.secure-headers.headers.addvaryheader=true"
+      - "traefik.http.middlewares.secure-headers.headers.referrerpolicy=same-origin"
+      - "traefik.http.middlewares.secure-headers.headers.browsersafety=true"
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
+
+volumes:
+  certs:
