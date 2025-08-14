@@ -18,8 +18,10 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Copy only the necessary application files
+COPY app.py .
+COPY chainlit.md .
+COPY realtime/ ./realtime/
 
 # Expose the port Chainlit runs on
 EXPOSE 8888
