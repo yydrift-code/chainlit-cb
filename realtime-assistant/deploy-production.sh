@@ -33,14 +33,15 @@ echo "🔐 Setting permissions for Let's Encrypt..."
 sudo chown -R $USER:$USER letsencrypt
 chmod 600 letsencrypt
 
-# Setup Traefik network if not exists
+# Setup Traefik network (always recreate for clean setup)
 echo "🌐 Setting up Traefik network..."
-if ! docker network ls | grep -q "proxy"; then
-    docker network create proxy
-    echo "✅ Traefik proxy network created"
-else
-    echo "✅ Traefik proxy network already exists"
+if docker network ls | grep -q "proxy"; then
+    echo "🗑️ Removing existing proxy network..."
+    docker network rm proxy
 fi
+echo "📡 Creating fresh Traefik proxy network..."
+docker network create proxy
+echo "✅ New Traefik proxy network created"
 
 # Stop existing containers
 echo "🛑 Stopping existing containers..."

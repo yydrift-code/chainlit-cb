@@ -47,12 +47,14 @@ traefik/
 The configuration is ready for deployment:
 
 ```bash
-# Setup network (already done)
+# Setup fresh network (removes existing if present)
 ./setup-traefik-network.sh
 
 # Deploy production stack
 ./deploy-production.sh
 ```
+
+**Note:** The setup script now always creates a fresh network to ensure clean configuration.
 
 ## Verification
 

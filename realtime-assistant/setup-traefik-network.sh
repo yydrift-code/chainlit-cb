@@ -2,14 +2,17 @@
 
 echo "🔧 Setting up Traefik external network..."
 
-# Check if the proxy network already exists
+# Remove existing proxy network if it exists
 if docker network ls | grep -q "proxy"; then
-    echo "✅ Traefik proxy network already exists"
-else
-    echo "📡 Creating Traefik proxy network..."
-    docker network create proxy
-    echo "✅ Traefik proxy network created successfully"
+    echo "🗑️ Removing existing Traefik proxy network..."
+    docker network rm proxy
+    echo "✅ Existing network removed"
 fi
+
+# Create fresh Traefik proxy network
+echo "📡 Creating new Traefik proxy network..."
+docker network create proxy
+echo "✅ New Traefik proxy network created successfully"
 
 echo ""
 echo "🌐 Network setup complete!"
