@@ -44,7 +44,7 @@ services:
       - "--api.insecure=false"
       
       # Observability
-      - "--log.level=INFO"
+      - "--log.level=DEBUG"
       - "--accesslog=true"
     
     labels:
@@ -86,12 +86,12 @@ services:
       - "traefik.http.routers.realtime-assistant-http.entrypoints=web"
       - "traefik.http.routers.realtime-assistant-http.service=realtime-assistant"
       # HTTPS router with TLS
-      - "traefik.http.routers.realtime-assistant.rule=Host(`realtime-demo.renovavision.tech`)"
-      - "traefik.http.routers.realtime-assistant.entrypoints=websecure"
-      - "traefik.http.routers.realtime-assistant.tls=true"
-      - "traefik.http.routers.realtime-assistant.tls.certresolver=le"
-      - "traefik.http.routers.realtime-assistant.middlewares=https-redirect@file"
-      - "traefik.http.services.realtime-assistant.loadbalancer.server.port=8888"
+      - "traefik.https.routers.realtime-assistant.rule=Host(`realtime-demo.renovavision.tech`)"
+      - "traefik.https.routers.realtime-assistant.entrypoints=websecure"
+      - "traefik.https.routers.realtime-assistant.tls=true"
+      - "traefik.https.routers.realtime-assistant.tls.certresolver=le"
+      - "traefik.https.routers.realtime-assistant.middlewares=https-redirect@file"
+      - "traefik.https.services.realtime-assistant.loadbalancer.server.port=8888"
 
 networks:
   proxy:
