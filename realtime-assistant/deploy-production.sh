@@ -28,10 +28,18 @@ echo "📁 Creating necessary directories..."
 mkdir -p letsencrypt
 mkdir -p traefik/dynamic
 
+# Create acme.json file with proper permissions if it doesn't exist
+if [ ! -f letsencrypt/acme.json ]; then
+    echo "📝 Creating acme.json file..."
+    touch letsencrypt/acme.json
+    chmod 600 letsencrypt/acme.json
+fi
+
 # Set proper permissions for Let's Encrypt
 echo "🔐 Setting permissions for Let's Encrypt..."
 sudo chown -R $USER:$USER letsencrypt
 chmod 600 letsencrypt
+chmod 600 letsencrypt/acme.json 2>/dev/null || true
 
 # Setup Traefik network (always recreate for clean setup)
 echo "🌐 Setting up Traefik network..."

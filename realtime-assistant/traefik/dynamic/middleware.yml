@@ -6,6 +6,13 @@
 # Common middleware configurations
 http:
   middlewares:
+    # HTTP to HTTPS redirect (allows HTTP challenge to work first)
+    https-redirect:
+      redirectRegex:
+        permanent: true
+        regex: "^http://(.*)"
+        replacement: "https://$1"
+    
     # Security headers middleware
     security-headers:
       headers:

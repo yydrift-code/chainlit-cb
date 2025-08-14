@@ -31,6 +31,7 @@ traefik/
 2. **Simplified Management:** All Traefik settings in one place (docker-compose.production.yml)
 3. **Dynamic Updates:** Middleware configurations can be updated without restarting Traefik
 4. **Cleaner Architecture:** Eliminates redundant configuration files
+5. **Proper ACME Support:** HTTP challenge enabled for Let's Encrypt certificate generation
 
 ## Configuration Sources
 
@@ -72,7 +73,15 @@ The provided middleware configurations can be applied to services by adding labe
 labels:
   - "traefik.http.routers.service.middlewares=security-headers@file"
   - "traefik.http.routers.service.middlewares=rate-limit@file"
+  - "traefik.http.routers.service.middlewares=https-redirect@file"
 ```
+
+### Available Middleware:
+
+- **https-redirect**: Redirects HTTP to HTTPS (allows ACME challenge to work)
+- **security-headers**: Adds security headers to responses
+- **rate-limit**: Rate limiting for API protection
+- **cors**: CORS headers for cross-origin requests
 
 ## Maintenance
 

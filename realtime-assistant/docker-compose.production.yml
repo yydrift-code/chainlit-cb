@@ -26,9 +26,6 @@ services:
     command:
       # EntryPoints
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.websecure.http.tls=true"
       
@@ -84,10 +81,16 @@ services:
       start_period: 40s
     labels:
       - "traefik.enable=true"
+      # HTTP router for ACME challenge
+      - "traefik.http.routers.realtime-assistant-http.rule=Host(`realtime-demo.renovavision.tech`)"
+      - "traefik.http.routers.realtime-assistant-http.entrypoints=web"
+      - "traefik.http.routers.realtime-assistant-http.service=realtime-assistant"
+      # HTTPS router with TLS
       - "traefik.http.routers.realtime-assistant.rule=Host(`realtime-demo.renovavision.tech`)"
       - "traefik.http.routers.realtime-assistant.entrypoints=websecure"
       - "traefik.http.routers.realtime-assistant.tls=true"
       - "traefik.http.routers.realtime-assistant.tls.certresolver=le"
+      - "traefik.http.routers.realtime-assistant.middlewares=https-redirect@file"
       - "traefik.http.services.realtime-assistant.loadbalancer.server.port=8888"
 
 networks:
