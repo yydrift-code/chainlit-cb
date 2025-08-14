@@ -11,7 +11,6 @@ services:
     
     networks:
       - proxy
-      - app-network
     
     ports:
       - "80:80"
@@ -68,7 +67,7 @@ services:
     env_file:
       - .env
     networks:
-      - app-network
+      - proxy
     # Don't expose port 8888 to host in production
     # Traefik will handle external access
     expose:
@@ -96,8 +95,7 @@ services:
 networks:
   proxy:
     external: true
-  app-network:
-    driver: bridge
+
 
 volumes:
   letsencrypt:
