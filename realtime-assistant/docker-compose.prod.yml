@@ -41,7 +41,7 @@ services:
     container_name: realtime-assistant
     restart: unless-stopped
     env_file:
-      - .env.prod
+      - .env
     environment:
       - CHAINLIT_HOST=0.0.0.0
       - CHAINLIT_PORT=8888

@@ -15,8 +15,8 @@ The production setup includes:
 
 1. **Copy and configure environment variables:**
    ```bash
-   cp .env.prod.template .env.prod
-   # Edit .env.prod with your actual values
+   cp .env.template .env
+   # Edit .env with your actual values
    ```
 
 2. **Update email in Traefik config:**
@@ -127,7 +127,7 @@ If you have other services running on ports 80 or 443, you'll need to stop them 
 
 ### Backup Important Files:
 - `certs/acme.json` (SSL certificates)
-- `.env.prod` (environment variables)
+- `.env` (environment variables)
 - `docker-compose.prod.yml` (configuration)
 
 ### Updates:
@@ -139,7 +139,7 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ## Environment Variables
 
-Key environment variables in `.env.prod`:
+Key environment variables in `.env`:
 
 - `OPENAI_API_KEY`: Your OpenAI API key
 - `ACME_EMAIL`: Email for Let's Encrypt certificates
