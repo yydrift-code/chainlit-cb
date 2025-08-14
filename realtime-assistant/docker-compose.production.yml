@@ -4,30 +4,101 @@ services:
   # Traefik reverse proxy
   reverse-proxy:
     image: traefik:v3.5
-    command:
-      - "--providers.docker"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entryPoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=yukhnevski@gmail.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    
+    networks:
+      - proxy
+      - app-network
+    
     ports:
       - "80:80"
       - "443:443"
+      - "8080:8080"  # Traefik dashboard (optional)
+    
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./letsencrypt:/letsencrypt
-      - /var/run/docker.sock:/var/run/docker.sock
-  realtime-assistant:
-    container_name: realtime-assistant
+      - ./traefik/dynamic:/etc/traefik/dynamic
+    
+    command:
+      # EntryPoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+      
+      # Providers
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+      
+      # Let's Encrypt configuration
+      - "--certificatesresolvers.le.acme.email=admin@renovavision.tech"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      
+      # API & Dashboard
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      
+      # Observability
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.guestbook.rule=Host(`realtime-demo.renovavision.tech`)"
-      - "traefik.http.routers.guestbook.entrypoints=websecure"
-      - "traefik.http.routers.guestbook.tls.certresolver=myresolver"
-      - "com.centurylinklabs.watchtower.enable=true"
+      # Dashboard router (optional - comment out if not needed)
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.renovavision.tech`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=le"
+
+  # Your realtime assistant app
+  realtime-assistant:
+    build: .
+    container_name: realtime-assistant
+    restart: unless-stopped
+    environment:
+      - CHAINLIT_HOST=0.0.0.0
+      - CHAINLIT_PORT=8888
+      - CHAINLIT_PUBLIC_URL=https://realtime-demo.renovavision.tech
     env_file:
       - .env
-    restart: always
+    networks:
+      - app-network
+    # Don't expose port 8888 to host in production
+    # Traefik will handle external access
+    expose:
+      - "8888"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      # HTTP router for ACME challenge
+      - "traefik.http.routers.realtime-assistant-http.rule=Host(`realtime-demo.renovavision.tech`)"
+      - "traefik.http.routers.realtime-assistant-http.entrypoints=web"
+      - "traefik.http.routers.realtime-assistant-http.service=realtime-assistant"
+      # HTTPS router with TLS
+      - "traefik.http.routers.realtime-assistant.rule=Host(`realtime-demo.renovavision.tech`)"
+      - "traefik.http.routers.realtime-assistant.entrypoints=websecure"
+      - "traefik.http.routers.realtime-assistant.tls=true"
+      - "traefik.http.routers.realtime-assistant.tls.certresolver=le"
+      - "traefik.http.routers.realtime-assistant.middlewares=https-redirect@file"
+      - "traefik.http.services.realtime-assistant.loadbalancer.server.port=8888"
+
+networks:
+  proxy:
+    external: true
+  app-network:
+    driver: bridge
+
+volumes:
+  letsencrypt:
+    driver: local
