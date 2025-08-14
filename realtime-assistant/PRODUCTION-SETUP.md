@@ -79,16 +79,16 @@ To add a new application (e.g., `app1.renovavision.tech`):
 ### View logs:
 ```bash
 # All services
-docker-compose -f docker-compose.prod.yml logs -f
+docker compose -f docker-compose.prod.yml logs -f
 
 # Specific service
-docker-compose -f docker-compose.prod.yml logs -f realtime-assistant
-docker-compose -f docker-compose.prod.yml logs -f traefik
+docker compose -f docker-compose.prod.yml logs -f realtime-assistant
+docker compose -f docker-compose.prod.yml logs -f traefik
 ```
 
 ### Check service status:
 ```bash
-docker-compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml ps
 ```
 
 ### Check SSL certificates:
@@ -113,11 +113,11 @@ curl -vI https://realtime-demo.renovavision.tech 2>&1 | grep -i expire
 ### SSL Certificate Issues:
 1. Check that your DNS records are correct
 2. Ensure ports 80 and 443 are open on your server
-3. Check Traefik logs: `docker-compose -f docker-compose.prod.yml logs traefik`
+3. Check Traefik logs: `docker compose -f docker-compose.prod.yml logs traefik`
 
 ### Application Not Accessible:
-1. Check if the service is running: `docker-compose -f docker-compose.prod.yml ps`
-2. Check application logs: `docker-compose -f docker-compose.prod.yml logs realtime-assistant`
+1. Check if the service is running: `docker compose -f docker-compose.prod.yml ps`
+2. Check application logs: `docker compose -f docker-compose.prod.yml logs realtime-assistant`
 3. Verify Traefik routing: Check the Traefik dashboard at https://traefik.renovavision.tech
 
 ### Port Conflicts:
@@ -133,8 +133,8 @@ If you have other services running on ports 80 or 443, you'll need to stop them 
 ### Updates:
 ```bash
 # Pull latest images and restart
-docker-compose -f docker-compose.prod.yml pull
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ## Environment Variables

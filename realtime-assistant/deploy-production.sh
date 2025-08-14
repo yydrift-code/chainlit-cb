@@ -33,19 +33,19 @@ docker network create traefik 2>/dev/null || echo "Network 'traefik' already exi
 
 # Stop existing services if they exist
 echo "🛑 Stopping existing services..."
-docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
+docker compose -f docker-compose.prod.yml down 2>/dev/null || true
 
 # Pull latest images
 echo "📥 Pulling latest images..."
-docker-compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml pull
 
 # Build the application
 echo "🔨 Building application..."
-docker-compose -f docker-compose.prod.yml build --no-cache
+docker compose -f docker-compose.prod.yml build --no-cache
 
 # Start services
 echo "▶️ Starting services..."
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 
 # Wait a moment for services to start
 echo "⏳ Waiting for services to start..."
@@ -53,11 +53,11 @@ sleep 10
 
 # Check service status
 echo "📊 Checking service status..."
-docker-compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml ps
 
 # Show logs for troubleshooting
 echo "📝 Recent logs:"
-docker-compose -f docker-compose.prod.yml logs --tail=20
+docker compose -f docker-compose.prod.yml logs --tail=20
 
 echo ""
 echo "✅ Deployment complete!"
@@ -67,9 +67,9 @@ echo "   - Realtime Assistant: https://realtime-demo.renovavision.tech"
 echo "   - Traefik Dashboard: https://traefik.renovavision.tech"
 echo ""
 echo "📋 Useful commands:"
-echo "   - View logs: docker-compose -f docker-compose.prod.yml logs -f"
-echo "   - Stop services: docker-compose -f docker-compose.prod.yml down"
-echo "   - Restart services: docker-compose -f docker-compose.prod.yml restart"
+echo "   - View logs: docker compose -f docker-compose.prod.yml logs -f"
+echo "   - Stop services: docker compose -f docker-compose.prod.yml down"
+echo "   - Restart services: docker compose -f docker-compose.prod.yml restart"
 echo ""
 echo "⚠️  Note: Make sure your DNS records point to this server:"
 echo "   - realtime-demo.renovavision.tech → $(curl -s ifconfig.me)"
