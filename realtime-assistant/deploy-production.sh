@@ -41,6 +41,11 @@ sudo chown -R $USER:$USER letsencrypt
 chmod 600 letsencrypt
 chmod 600 letsencrypt/acme.json 2>/dev/null || true
 
+# Stop existing containers
+echo "🛑 Stopping existing containers..."
+docker compose down 2>/dev/null || true
+docker compose -f docker-compose.production.yml down 2>/dev/null || true
+
 # Setup Traefik network (always recreate for clean setup)
 echo "🌐 Setting up Traefik network..."
 if docker network ls | grep -q "proxy"; then
@@ -51,10 +56,6 @@ echo "📡 Creating fresh Traefik proxy network..."
 docker network create proxy
 echo "✅ New Traefik proxy network created"
 
-# Stop existing containers
-echo "🛑 Stopping existing containers..."
-docker compose down 2>/dev/null || true
-docker compose -f docker-compose.production.yml down 2>/dev/null || true
 
 # Build and start production stack
 echo "🔨 Building and starting production stack with Traefik..."
