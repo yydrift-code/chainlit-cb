@@ -15,8 +15,8 @@ RUN apk add --no-cache \
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies with caching for faster builds
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 
 # Copy only the necessary application files
 COPY app.py .

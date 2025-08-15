@@ -123,12 +123,7 @@ curl -vI https://realtime-demo.renovavision.tech 2>&1 | grep -i expire
 ### Port Conflicts:
 If you have other services running on ports 80 or 443, you'll need to stop them first.
 
-## Backup and Maintenance
-
-### Backup Important Files:
-- `certs/acme.json` (SSL certificates)
-- `.env` (environment variables)
-- `docker-compose.prod.yml` (configuration)
+## Maintenance
 
 ### Updates:
 ```bash

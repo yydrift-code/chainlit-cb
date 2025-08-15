@@ -39,7 +39,11 @@ services:
       - traefik
 
   realtime-assistant:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - python:3.11-alpine
     container_name: realtime-assistant
     restart: unless-stopped
     env_file:
@@ -80,3 +84,4 @@ networks:
 
 volumes:
   certs:
+  pip_cache:

@@ -39,9 +39,9 @@ docker compose -f docker-compose.prod.yml down 2>/dev/null || true
 echo "📥 Pulling latest images..."
 docker compose -f docker-compose.prod.yml pull
 
-# Build the application
+# Build the application with caching enabled
 echo "🔨 Building application..."
-docker compose -f docker-compose.prod.yml build --no-cache
+DOCKER_BUILDKIT=1 docker compose -f docker-compose.prod.yml build
 
 # Start services
 echo "▶️ Starting services..."
