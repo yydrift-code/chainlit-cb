@@ -1,0 +1,10 @@
+[features.audio]
+enabled = true
+
+[project]
+# Enable features
+enable_telemetry = true
+
+[UI]
+# Show the collapse button for the sidebar
+show_readme_as_default = true

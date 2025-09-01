@@ -1,0 +1,8 @@
+# Override parent .gitignore to include .chainlit config
+!.chainlit/
+!.chainlit/config.toml
+
+# But still ignore chainlit session/cache files if they exist
+.chainlit/cache/
+.chainlit/sessions/
+.chainlit/.files/
