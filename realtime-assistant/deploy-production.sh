@@ -8,9 +8,9 @@ set -e
 echo "🚀 Starting production deployment with Traefik..."
 
 # Check if required files exist
-if [[ ! -f ".env.prod" ]]; then
-    echo "❌ Error: .env.prod file not found!"
-    echo "Please copy .env.prod.template to .env.prod and fill in your values."
+if [[ ! -f ".env" ]]; then
+    echo "❌ Error: .env file not found!"
+    echo "Please copy .env.template to .env and fill in your values."
     exit 1
 fi
 
