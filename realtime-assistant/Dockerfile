@@ -22,6 +22,7 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 COPY app.py .
 COPY chainlit.md .
 COPY realtime/ ./realtime/
+COPY .chainlit/ ./.chainlit/
 
 # Expose the port Chainlit runs on
 EXPOSE 8888
