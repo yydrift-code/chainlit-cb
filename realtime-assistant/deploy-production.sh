@@ -1,14 +1,16 @@
 #!/bin/bash
 
-# Production deployment script for Traefik + Realtime Assistant
+# Production deployment script for realtime assistant with Traefik
+# This script deploys the app with Traefik reverse proxy and automatic SSL
+
 set -e
 
-echo "🚀 Starting production deployment..."
+echo "🚀 Starting production deployment with Traefik..."
 
 # Check if required files exist
-if [[ ! -f ".env" ]]; then
-    echo "❌ Error: .env file not found!"
-    echo "Please copy .env.template to .env and fill in your values."
+if [[ ! -f ".env.prod" ]]; then
+    echo "❌ Error: .env.prod file not found!"
+    echo "Please copy .env.prod.template to .env.prod and fill in your values."
     exit 1
 fi
 
@@ -17,47 +19,77 @@ if [[ ! -f "docker-compose.prod.yml" ]]; then
     exit 1
 fi
 
+if [[ ! -f "traefik/docker-compose.yml" ]]; then
+    echo "❌ Error: traefik/docker-compose.yml file not found!"
+    exit 1
+fi
+
+# Set production public URL
+export CHAINLIT_PUBLIC_URL="https://realtime-demo.renovavision.tech"
+
 # Create necessary directories
 echo "📁 Creating necessary directories..."
-mkdir -p certs
-mkdir -p traefik
+mkdir -p letsencrypt
+mkdir -p traefik/dynamic
 
-# Set proper permissions for ACME certificates
-echo "🔒 Setting permissions for certificates..."
-touch certs/acme.json
-chmod 600 certs/acme.json
+# Create acme.json file with proper permissions if it doesn't exist
+if [ ! -f letsencrypt/acme.json ]; then
+    echo "📝 Creating acme.json file..."
+    touch letsencrypt/acme.json
+    chmod 600 letsencrypt/acme.json
+fi
 
-# Create Docker network if it doesn't exist
-echo "🌐 Creating Docker network..."
-docker network create traefik 2>/dev/null || echo "Network 'traefik' already exists"
+# Set proper permissions for Let's Encrypt
+echo "🔐 Setting permissions for Let's Encrypt..."
+sudo chown -R $USER:$USER letsencrypt
+chmod 600 letsencrypt
+chmod 600 letsencrypt/acme.json 2>/dev/null || true
 
-# Stop existing services if they exist
-echo "🛑 Stopping existing services..."
+# Stop existing containers
+echo "🛑 Stopping existing containers..."
+docker compose down 2>/dev/null || true
 docker compose -f docker-compose.prod.yml down 2>/dev/null || true
+cd traefik && docker compose down 2>/dev/null || true && cd ..
 
-# Pull latest images
-echo "📥 Pulling latest images..."
-docker compose -f docker-compose.prod.yml pull
+# Setup Traefik network (always recreate for clean setup)
+echo "🌐 Setting up Traefik network..."
+if docker network ls | grep -q "proxy"; then
+    echo "🗑️ Removing existing proxy network..."
+    docker network rm proxy
+fi
+echo "📡 Creating fresh Traefik proxy network..."
+docker network create proxy
+echo "✅ New Traefik proxy network created"
 
-# Build the application with caching enabled
-echo "🔨 Building application..."
-DOCKER_BUILDKIT=1 docker compose -f docker-compose.prod.yml build
+# Start Traefik first
+echo "🚀 Starting Traefik service..."
+cd traefik
+docker compose up -d
+cd ..
 
-# Start services
-echo "▶️ Starting services..."
-docker compose -f docker-compose.prod.yml up -d
-
-# Wait a moment for services to start
-echo "⏳ Waiting for services to start..."
+# Wait for Traefik to be ready
+echo "⏳ Waiting for Traefik to be ready..."
 sleep 10
+
+# Build and start production stack
+echo "🔨 Building and starting production stack..."
+docker compose -f docker-compose.prod.yml up --build -d
+
+# Wait for services to be ready
+echo "⏳ Waiting for services to be ready..."
+sleep 15
 
 # Check service status
 echo "📊 Checking service status..."
 docker compose -f docker-compose.prod.yml ps
 
-# Show logs for troubleshooting
-echo "📝 Recent logs:"
-docker compose -f docker-compose.prod.yml logs --tail=20
+# Check Traefik logs
+echo "📋 Traefik logs (last 10 lines):"
+cd traefik && docker compose logs --tail=10 && cd ..
+
+# Check realtime assistant logs
+echo "📋 Realtime Assistant logs (last 10 lines):"
+docker compose -f docker-compose.prod.yml logs --tail=10 realtime-assistant
 
 echo ""
 echo "✅ Deployment complete!"
@@ -66,12 +98,24 @@ echo "🌍 Your services should be available at:"
 echo "   - Realtime Assistant: https://realtime-demo.renovavision.tech"
 echo "   - Traefik Dashboard: https://traefik.renovavision.tech"
 echo ""
-echo "📋 Useful commands:"
-echo "   - View logs: docker compose -f docker-compose.prod.yml logs -f"
-echo "   - Stop services: docker compose -f docker-compose.prod.yml down"
-echo "   - Restart services: docker compose -f docker-compose.prod.yml restart"
+echo "📊 Traefik dashboard (optional):"
+echo "   https://traefik.renovavision.tech"
 echo ""
-echo "⚠️  Note: Make sure your DNS records point to this server:"
-echo "   - realtime-demo.renovavision.tech → $(curl -s ifconfig.me)"
-echo "   - traefik.renovavision.tech → $(curl -s ifconfig.me)"
-echo "   - *.renovavision.tech → $(curl -s ifconfig.me) (wildcard for future subdomains)"
+echo "📝 Useful commands:"
+echo "   View logs: docker compose -f docker-compose.prod.yml logs -f"
+echo "   Stop: docker compose -f docker-compose.prod.yml down"
+echo "   Restart: docker compose -f docker-compose.prod.yml restart"
+echo "   Update: ./deploy-production.sh"
+echo "   Start Traefik only: cd traefik && ./start-traefik.sh"
+echo "   Stop Traefik only: cd traefik && ./stop-traefik.sh"
+echo ""
+echo "🔒 Traefik will automatically:"
+echo "   - Obtain SSL certificates from Let's Encrypt"
+echo "   - Handle HTTPS termination"
+echo "   - Proxy requests to your app"
+echo "   - Provide health checks and load balancing"
+echo ""
+echo "⚠️  Important notes:"
+echo "   - Make sure your domain renovavision.tech points to this server"
+echo "   - DNS records for realtime-demo.renovavision.tech must be configured"
+echo "   - Ports 80 and 443 must be open on your firewall"
