@@ -1,0 +1,33 @@
+# Caddyfile for realtime-assistant with automatic HTTPS
+
+# Production domain with automatic HTTPS
+realtime-demo.renovavision.tech {
+    reverse_proxy realtime-assistant:8888
+    
+    # Enable automatic HTTPS with Let's Encrypt
+    # Caddy handles this automatically for valid domains
+    
+    # Optional: Add some security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security max-age=31536000;
+        # Prevent MIME type sniffing
+        X-Content-Type-Options nosniff
+        # Enable XSS protection
+        X-Frame-Options DENY
+        # Enable XSS protection
+        X-XSS-Protection "1; mode=block"
+    }
+}
+
+# Optional: Redirect HTTP to HTTPS for the domain
+# (Caddy does this automatically, but this is explicit)
+http://realtime-demo.renovavision.tech {
+    redir https://realtime-demo.renovavision.tech{uri}
+}
+
+# Optional: Local development on localhost
+# Uncomment the following block for local development
+# localhost {
+#     reverse_proxy realtime-assistant:8888
+# }
