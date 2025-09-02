@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   realtime-assistant:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
       cache_from:
@@ -11,6 +11,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    ports:
+      - "8888:8888"
     environment:
       - CHAINLIT_HOST=0.0.0.0
       - CHAINLIT_PORT=8888
