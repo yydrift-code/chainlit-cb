@@ -1,8 +1,11 @@
-# Caddyfile for realtime-assistant with automatic HTTPS
+# Caddyfile for external Caddy container
+# This should be used in your external Caddy container configuration
 
 # Production domain with automatic HTTPS
 realtime-demo.renovavision.tech {
-    reverse_proxy realtime-assistant:8888
+    reverse_proxy realtime-assistant:8888 {
+        flush_interval -1
+    }
     
     # Enable automatic HTTPS with Let's Encrypt
     # Caddy handles this automatically for valid domains
@@ -19,15 +22,3 @@ realtime-demo.renovavision.tech {
         X-XSS-Protection "1; mode=block"
     }
 }
-
-# Optional: Redirect HTTP to HTTPS for the domain
-# (Caddy does this automatically, but this is explicit)
-http://realtime-demo.renovavision.tech {
-    redir https://realtime-demo.renovavision.tech{uri}
-}
-
-# Optional: Local development on localhost
-# Uncomment the following block for local development
-# localhost {
-#     reverse_proxy realtime-assistant:8888
-# }

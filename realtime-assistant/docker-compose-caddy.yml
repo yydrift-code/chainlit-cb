@@ -1,20 +1,6 @@
 version: '3.8'
 
 services:
-  # caddy:
-  #   image: caddy:2-alpine
-  #   container_name: caddy
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - ./Caddyfile:/etc/caddy/Caddyfile
-  #     - caddy_data:/data
-  #     - caddy_config:/config
-    # networks:
-    #   - caddy-net
-
   realtime-assistant:
     build: 
       context: .
@@ -36,15 +22,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    # networks:
-    #   - caddy-net
+    networks:
+      - caddy-network
 
-# networks:
-#   caddy-net:
-#     driver: bridge
-
-volumes:
-  caddy_data:
-    external: false
-  caddy_config:
-    external: false
+networks:
+  caddy-network:
+    external: true
