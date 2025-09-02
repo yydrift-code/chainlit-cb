@@ -10,15 +10,15 @@ realtime-demo.renovavision.tech {
     # Enable automatic HTTPS with Let's Encrypt
     # Caddy handles this automatically for valid domains
     
-    # Optional: Add some security headers
-    header {
-        # Enable HSTS
-        Strict-Transport-Security max-age=31536000;
-        # Prevent MIME type sniffing
-        X-Content-Type-Options nosniff
-        # Enable XSS protection
-        X-Frame-Options DENY
-        # Enable XSS protection
-        X-XSS-Protection "1; mode=block"
-    }
+    # # Optional: Add some security headers
+    # header {
+    #     # Enable HSTS
+    #     Strict-Transport-Security max-age=31536000;
+    #     # Prevent MIME type sniffing
+    #     X-Content-Type-Options nosniff
+    #     # Enable XSS protection
+    #     X-Frame-Options DENY
+    #     # Enable XSS protection
+    #     X-XSS-Protection "1; mode=block"
+    # }
 }
