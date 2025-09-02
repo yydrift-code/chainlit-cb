@@ -1,40 +1,40 @@
 # Caddyfile for external Caddy container
 # This should be used in your external Caddy container configuration
 
-# For testing with localhost (no SSL)
-# Uncomment this block for local testing:
-# localhost:8888 {
-#     reverse_proxy realtime-assistant:8888 {
-#         flush_interval -1
-#     }
-# }
+{
+    # Global options
+    email yukhnevsky@gmail.com
+    # Uncomment for debugging SSL issues
+    # debug
+}
 
 # Production domain with automatic HTTPS
-# realtime-demo.renovavision.tech {
-#     reverse_proxy realtime-assistant:8888 {
-#         flush_interval -1
-#     }
-#     
-#     # Enable automatic HTTPS with Let's Encrypt
-#     # Caddy handles this automatically for valid domains
-#     
-#     # Optional: Add some security headers
-#     header {
-#         # Enable HSTS
-#         Strict-Transport-Security max-age=31536000;
-#         # Prevent MIME type sniffing
-#         X-Content-Type-Options nosniff
-#         # Enable XSS protection
-#         X-Frame-Options DENY
-#         # Enable XSS protection
-#         X-XSS-Protection "1; mode=block"
-#     }
-# }
-
-# Alternative: Force HTTP for testing (remove HTTPS temporarily)
-# Uncomment this and comment the block above for HTTP-only testing:
-http://realtime-demo.renovavision.tech {
+realtime-demo.renovavision.tech {
     reverse_proxy realtime-assistant:8888 {
         flush_interval -1
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # Enable automatic HTTPS with Let's Encrypt
+    # Caddy handles this automatically for valid domains
+    
+    # Add some security headers
+    header {
+        # Prevent MIME type sniffing
+        X-Content-Type-Options nosniff
+        # Enable XSS protection
+        X-Frame-Options DENY
+        # Enable XSS protection
+        X-XSS-Protection "1; mode=block"
+        # Don't add HSTS initially to avoid browser caching issues
+        # Strict-Transport-Security max-age=31536000;
+    }
+    
+    # Enable logging for debugging
+    log {
+        output stdout
     }
 }
