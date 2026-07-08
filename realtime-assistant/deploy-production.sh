@@ -20,7 +20,7 @@ if [[ ! -f "docker-compose.prod.yml" ]]; then
 fi
 
 # Set production public URL
-export CHAINLIT_PUBLIC_URL="https://realtime-demo.renovavision.tech"
+export CHAINLIT_PUBLIC_URL="https://realtime-demo.yytech.by"
 
 # Create necessary directories
 echo "📁 Creating necessary directories..."
@@ -65,7 +65,7 @@ echo ""
 echo "✅ Deployment complete!"
 echo ""
 echo "🌍 Your service should be available at:"
-echo "   - Realtime Assistant: https://realtime-demo.renovavision.tech"
+echo "   - Realtime Assistant: https://realtime-demo.yytech.by"
 echo ""
 echo "📝 Useful commands:"
 echo "   View logs: docker compose -f docker-compose.prod.yml logs -f"
@@ -75,6 +75,6 @@ echo "   Update: ./deploy-production.sh"
 echo ""
 echo "⚠️  Important notes:"
 echo "   - Make sure Reverse proxy is running in the separate project"
-echo "   - Make sure your domain renovavision.tech points to this server"
-echo "   - DNS records for realtime-demo.renovavision.tech must be configured"
+echo "   - Make sure your domain yytech.by points to this server"
+echo "   - DNS records for realtime-demo.yytech.by must be configured"
 echo "   - Ports 80 and 443 must be open on your firewall"

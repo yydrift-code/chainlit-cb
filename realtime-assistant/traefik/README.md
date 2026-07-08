@@ -42,7 +42,7 @@ docker compose logs -f  # View logs
 Make sure your `.env` file in the parent directory contains:
 
 ```bash
-ACME_EMAIL=your-email@renovavision.tech
+ACME_EMAIL=your-email@yytech.by
 ```
 
 ### Network
@@ -84,4 +84,4 @@ The main application (`docker-compose.prod.yml`) depends on Traefik being runnin
 
 4. **View Traefik dashboard:**
    - Local: http://localhost:8080
-   - Production: https://traefik.renovavision.tech
+   - Production: https://traefik.yytech.by

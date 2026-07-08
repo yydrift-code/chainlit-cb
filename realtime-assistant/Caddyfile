@@ -9,7 +9,7 @@
 }
 
 # Production domain with automatic HTTPS
-realtime-demo.renovavision.tech {
+realtime-demo.yytech.by {
     reverse_proxy realtime-assistant:8888 {
         flush_interval -1
         header_up Host {host}

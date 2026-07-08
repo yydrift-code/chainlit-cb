@@ -27,9 +27,9 @@ http:
     cors:
       headers:
         accessControlAllowOriginList:
-          - "https://realtime-demo.renovavision.tech"
-          - "https://app1.renovavision.tech"
-          - "https://app2.renovavision.tech"
+          - "https://realtime-demo.yytech.by"
+          - "https://app1.yytech.by"
+          - "https://app2.yytech.by"
         accessControlAllowMethods:
           - GET
           - POST

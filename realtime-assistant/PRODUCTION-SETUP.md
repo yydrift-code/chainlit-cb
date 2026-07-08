@@ -20,13 +20,13 @@ The production setup includes:
    ```
 
 2. **Update email in Traefik config:**
-   Edit `traefik/traefik.yml` and replace `your-email@renovavision.tech` with your actual email.
+   Edit `traefik/traefik.yml` and replace `your-email@yytech.by` with your actual email.
 
 3. **Set up DNS records:**
    Point these domains to your server's IP:
-   - `realtime-demo.renovavision.tech`
-   - `traefik.renovavision.tech`
-   - `*.renovavision.tech` (wildcard for future subdomains)
+   - `realtime-demo.yytech.by`
+   - `traefik.yytech.by`
+   - `*.yytech.by` (wildcard for future subdomains)
 
 4. **Deploy:**
    ```bash
@@ -47,12 +47,12 @@ Configure these DNS A records in your domain registrar:
 
 After deployment, your services will be available at:
 
-- **Realtime Assistant**: https://realtime-demo.renovavision.tech
-- **Traefik Dashboard**: https://traefik.renovavision.tech
+- **Realtime Assistant**: https://realtime-demo.yytech.by
+- **Traefik Dashboard**: https://traefik.yytech.by
 
 ## Adding New Applications
 
-To add a new application (e.g., `app1.renovavision.tech`):
+To add a new application (e.g., `app1.yytech.by`):
 
 1. Add your service to `docker-compose.prod.yml`:
    ```yaml
@@ -61,7 +61,7 @@ To add a new application (e.g., `app1.renovavision.tech`):
      restart: unless-stopped
      labels:
        - "traefik.enable=true"
-       - "traefik.http.routers.your-new-app.rule=Host(`app1.renovavision.tech`)"
+       - "traefik.http.routers.your-new-app.rule=Host(`app1.yytech.by`)"
        - "traefik.http.routers.your-new-app.entrypoints=websecure"
        - "traefik.http.routers.your-new-app.tls.certresolver=letsencrypt"
        - "traefik.http.services.your-new-app.loadbalancer.server.port=8080"
@@ -94,10 +94,10 @@ docker compose -f docker-compose.prod.yml ps
 ### Check SSL certificates:
 ```bash
 # Check certificate info
-openssl s_client -connect realtime-demo.renovavision.tech:443 -servername realtime-demo.renovavision.tech < /dev/null
+openssl s_client -connect realtime-demo.yytech.by:443 -servername realtime-demo.yytech.by < /dev/null
 
 # Check certificate expiry
-curl -vI https://realtime-demo.renovavision.tech 2>&1 | grep -i expire
+curl -vI https://realtime-demo.yytech.by 2>&1 | grep -i expire
 ```
 
 ## Security Features
@@ -118,7 +118,7 @@ curl -vI https://realtime-demo.renovavision.tech 2>&1 | grep -i expire
 ### Application Not Accessible:
 1. Check if the service is running: `docker compose -f docker-compose.prod.yml ps`
 2. Check application logs: `docker compose -f docker-compose.prod.yml logs realtime-assistant`
-3. Verify Traefik routing: Check the Traefik dashboard at https://traefik.renovavision.tech
+3. Verify Traefik routing: Check the Traefik dashboard at https://traefik.yytech.by
 
 ### Port Conflicts:
 If you have other services running on ports 80 or 443, you'll need to stop them first.

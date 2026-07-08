@@ -14,7 +14,7 @@ services:
     environment:
       - CHAINLIT_HOST=0.0.0.0
       - CHAINLIT_PORT=8888
-      - CHAINLIT_PUBLIC_URL=https://realtime-demo.renovavision.tech
+      - CHAINLIT_PUBLIC_URL=https://realtime-demo.yytech.by
     volumes: []
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
@@ -25,11 +25,11 @@ services:
     labels:
       - "traefik.enable=true"
       # # HTTP router for testing
-      - "traefik.http.routers.realtime-assistant.rule=Host(`localhost`) || Host(`realtime-demo.renovavision.tech`)"
+      - "traefik.http.routers.realtime-assistant.rule=Host(`localhost`) || Host(`realtime-demo.yytech.by`)"
       - "traefik.http.routers.realtime-assistant.entrypoints=web"
       - "traefik.http.services.realtime-assistant.loadbalancer.server.port=8888"
       # HTTPS router for production
-      - "traefik.http.routers.realtime-assistant-secure.rule=Host(`realtime-demo.renovavision.tech`)"
+      - "traefik.http.routers.realtime-assistant-secure.rule=Host(`realtime-demo.yytech.by`)"
       - "traefik.http.routers.realtime-assistant-secure.entrypoints=websecure"
       - "traefik.http.routers.realtime-assistant-secure.tls.certresolver=letsencrypt"
       - "traefik.http.routers.realtime-assistant-secure.service=realtime-assistant-service"
@@ -37,7 +37,7 @@ services:
 
       # - "traefik.http.routers.realtime-assistant-secure.middlewares=secure-headers"
       # - "traefik.http.middlewares.secure-headers.headers.accesscontrolallowmethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
-      # - "traefik.http.middlewares.secure-headers.headers.accesscontrolalloworiginlist=https://realtime-demo.renovavision.tech"
+      # - "traefik.http.middlewares.secure-headers.headers.accesscontrolalloworiginlist=https://realtime-demo.yytech.by"
       # - "traefik.http.middlewares.secure-headers.headers.accesscontrolmaxage=100"
       # - "traefik.http.middlewares.secure-headers.headers.addvaryheader=true"
       # - "traefik.http.middlewares.secure-headers.headers.referrerpolicy=same-origin"

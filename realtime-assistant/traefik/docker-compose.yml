@@ -27,12 +27,12 @@ services:
       - --log.level=INFO
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.renovavision.tech`)"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.yytech.by`)"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.redirect-https.rule=Host(`renovavision.tech`)"
+      - "traefik.http.routers.redirect-https.rule=Host(`yytech.by`)"
       - "traefik.http.routers.redirect-https.entrypoints=web"
       - "traefik.http.routers.redirect-https.middlewares=redirect-to-https"
     networks:

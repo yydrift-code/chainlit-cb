@@ -20,7 +20,7 @@ providers:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: your-email@renovavision.tech  # Change this to your email
+      email: your-email@yytech.by  # Change this to your email
       storage: /certs/acme.json
       httpChallenge:
         entryPoint: web
